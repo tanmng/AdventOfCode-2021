@@ -50,85 +50,61 @@ function main()
         input = inputs[i]
         output = outputs[i]
 
-        digits::Array{Set{String}} = []
+        digits::Array{Set{String}} = Array{Set{String}}(undef, 10)
 
         # The simple ones
-        digit_1 = input[2][1]
-        digit_4 = input[4][1]
-        digit_7 = input[3][1]
-        digit_8 = input[7][1]
+        digits[1] = input[2][1]
+        digits[4] = input[4][1]
+        digits[7] = input[3][1]
+        digits[8] = input[7][1]
 
-        digit_2 = nothing
-        digit_3 = nothing
-        digit_5 = nothing
-        digit_6 = nothing
-        digit_9 = nothing
-        digit_0 = nothing
         # 6 segments - might be 6, 9 and 0
         for candidate in input[6]
-            if length(intersect(candidate, digit_1)) == 1
+            if length(intersect(candidate, digits[1])) == 1
                 # This is a 6
-                digit_6 = candidate
+                digits[6] = candidate
             else
-                if length(intersect(digit_4, setdiff(candidate, digit_7))) == 1
-                    # This is a 0
-                    digit_0 = candidate
+                if length(intersect(digits[4], setdiff(candidate, digits[7]))) == 1
+                    # This is a 0 - but Julia doesn't have index 0, does it
+                    digits[10] = candidate
                 else
                     # This is a 9
-                    digit_9 = candidate
+                    digits[9] = candidate
                 end
             end
         end
 
         # 5 segments - might be 2, 5 and 3
         for candidate in input[5]
-            if length(intersect(candidate, digit_1)) == 2
+            if length(intersect(candidate, digits[1])) == 2
                 # This is a 3
-                digit_3 = candidate
+                digits[3] = candidate
             else
-                if length(setdiff(candidate, digit_9)) == 1
+                if length(setdiff(candidate, digits[9])) == 1
                     # This is a 2
-                    digit_2 = candidate
+                    digits[2] = candidate
                 else
                     # This is a 5
-                    digit_5 = candidate
+                    digits[5] = candidate
                 end
             end
         end
 
-        # println(digit_1)
-        # println(digit_2)
-        # println(digit_3)
-        # println(digit_5)
         # Get the number from output
-        output_string = ""
+        output_value::Int = 0
         for output_digit in output
-            # This is really ugly
-            if output_digit == digit_1
-                output_string *= "1"
-            elseif output_digit == digit_2
-                output_string *= "2"
-            elseif output_digit == digit_3
-                output_string *= "3"
-            elseif output_digit == digit_4
-                output_string *= "4"
-            elseif output_digit == digit_5
-                output_string *= "5"
-            elseif output_digit == digit_6
-                output_string *= "6"
-            elseif output_digit == digit_7
-                output_string *= "7"
-            elseif output_digit == digit_8
-                output_string *= "8"
-            elseif output_digit == digit_9
-                output_string *= "9"
-            elseif output_digit == digit_0
-                output_string *= "0"
+            for j = 1:10
+                if output_digit == digits[j]
+                    digit_value::Int = j % 10 # This is for the wrap around of 0
+                    output_value = output_value * 10 + digit_value
+                    # Break from this loop - continue to the next digit
+                    break
+                end
             end
         end
 
-        println(i, ", output = ", output_string)
-        part2_answer += tryparse(Int, output_string)
+        println(i, ", output = ", output_value)
+        part2_answer += output_value
 
     end
 
