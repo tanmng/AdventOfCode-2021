@@ -33,14 +33,10 @@ function main()
 
         low_point::Bool = true
         for d_x = -1:1:1, d_y = -1:1:1
-            if d_x == 0 || d_y == 0
+            if xor(d_x == 0, d_y == 0)
                 # This to guarantee we only look at 4 directions
                 x = row + d_x
                 y = col + d_y
-
-                if d_x == 0 && d_y == 0
-                    continue
-                end
 
                 if x >= 1 && x <= cave_x && y >= 1 && y <= cave_y
                     # println("Comparing ", row, ", ", col, " with ", x, ", ", y)
@@ -48,6 +44,7 @@ function main()
                     if cur_value >= inputs[x, y]
                         # This is no longer a low point
                         low_point = false
+                        break
                     end
                 end
             end
@@ -62,6 +59,11 @@ function main()
     end
 
     println("Part 1: ", part1_answer)
+
+    if length(low_points) < 3
+        println("Part 2 - we do not even have 3 basins")
+        return
+    end
 
     # Part 2 - explore the basins
     part2_answer::Int = 0
@@ -84,16 +86,11 @@ function main()
                 col = new_point[2]
 
                 for d_x = -1:1:1, d_y = -1:1:1
-                    if d_x == 0 || d_y == 0
-                        if d_x == 0 && d_y == 0
-                            continue
-                        end
+                    if xor(d_x == 0, d_y == 0)
                         # This to guarantee we only look at 4 directions
 
                         x = row + d_y
                         y = col + d_x
-
-                        # println("Basin ", low_point, " Checking ", x, ", ", y)
 
                         if x >= 1 && x <= cave_x && y >= 1 && y <= cave_y && (! ((x, y) in basin_points)) && inputs[x, y] != 9
                             # This is a new point for the basin
